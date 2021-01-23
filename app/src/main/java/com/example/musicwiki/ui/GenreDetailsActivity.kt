@@ -18,6 +18,7 @@ import com.example.musicwiki.databinding.ActivityGenreDetailsBinding
 import com.example.musicwiki.adapter.SectionsPagerAdapter
 import com.example.musicwiki.util.CustomProgress
 import com.example.musicwiki.util.Status
+import com.example.musicwiki.util.isInternetOn
 import com.example.musicwiki.util.toastMsg
 import com.example.musicwiki.viewmodel.GenreViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,7 +56,6 @@ class GenreDetailsActivity : AppCompatActivity() {
         navController.setGraph(R.navigation.navigation_details, bundle)
         binding.navigation.setupWithNavController(navController)
         binding.navigation.setOnNavigationItemSelectedListener { item ->
-            println("=====bundle==inside==${bundle.toString()}")
             navController.navigate(item.itemId, bundle)
             true
         }
@@ -65,28 +65,30 @@ class GenreDetailsActivity : AppCompatActivity() {
             TooltipCompat.setTooltipText(this.findViewById(it.itemId), null)
         }
 
-        viewModel.getTagsInfo(bundle?.getString("tag").toString()).observe(this, Observer {
-            it?.let { response ->
-                when (response.status) {
-                    Status.LOADING -> {
-                        CustomProgress.instance?.show(this)
-                    }
-                    Status.SUCCESS -> {
-                        CustomProgress.instance?.dismiss()
-                        response.data?.let { model ->
-                            binding.content.text = Html.fromHtml(model.tag.wiki.summary)
+        if(isInternetOn()) {
+            viewModel.getTagsInfo(bundle?.getString("tag").toString()).observe(this, Observer {
+                it?.let { response ->
+                    when (response.status) {
+                        Status.LOADING -> {
+                            CustomProgress.instance?.show(this)
                         }
+                        Status.SUCCESS -> {
+                            CustomProgress.instance?.dismiss()
+                            response.data?.let { model ->
+                                binding.content.text = Html.fromHtml(model.tag.wiki.summary)
+                            }
 
-                        /*val viewPager: ViewPager = findViewById(R.id.view_pager)*/
-                        /* binding.viewPager.adapter = sectionsPagerAdapter
+                            /*val viewPager: ViewPager = findViewById(R.id.view_pager)*/
+                            /* binding.viewPager.adapter = sectionsPagerAdapter
                          binding.tabs.setupWithViewPager(binding.viewPager)*/
-                    }
-                    Status.ERROR -> {
-                        CustomProgress.instance?.dismiss()
-                        toastMsg(response.message.toString())
+                        }
+                        Status.ERROR -> {
+                            CustomProgress.instance?.dismiss()
+                            toastMsg(response.message.toString())
+                        }
                     }
                 }
-            }
-        })
+            })
+        }else toastMsg("Please check internet connection!")
     }
 }

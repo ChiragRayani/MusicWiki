@@ -34,7 +34,6 @@ class AlbumAdapter(
 
         try {
             val data = list[position]
-            println("=====album==${data.name}")
             Glide.with(context).load(data.image[1].text).into(holder.binding.image)
             holder.binding.name.text = data.name
 

@@ -12,6 +12,7 @@ import com.example.musicwiki.adapter.AlbumAdapter
 import com.example.musicwiki.databinding.FragmentAlbumBinding
 import com.example.musicwiki.util.CustomProgress
 import com.example.musicwiki.util.Status
+import com.example.musicwiki.util.isInternetOn
 import com.example.musicwiki.util.toastMsg
 import com.example.musicwiki.viewmodel.GenreViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,33 +31,36 @@ class FragmentAlbum : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAlbumBinding.inflate(inflater, container, false)
-        viewModel.getAlbumList(albumArgs.tag).observe(viewLifecycleOwner, Observer {
-            it?.let { response ->
-                when (response.status) {
-                    Status.LOADING -> {
-                        CustomProgress.instance?.show(requireActivity())
-                    }
-                    Status.SUCCESS -> {
-                        CustomProgress.instance?.dismiss()
-                        response.data?.let {
-                            adapter = AlbumAdapter(
-                                AlbumAdapter.AlbumOnClick {
 
-                                },
-                                it.albums.album,
-                                requireContext()
-                            )
-                            binding.albumList.adapter = adapter
+        if (requireContext().isInternetOn()) {
+            viewModel.getAlbumList(albumArgs.tag).observe(viewLifecycleOwner, Observer {
+                it?.let { response ->
+                    when (response.status) {
+                        Status.LOADING -> {
+                            CustomProgress.instance?.show(requireActivity())
+                        }
+                        Status.SUCCESS -> {
+                            CustomProgress.instance?.dismiss()
+                            response.data?.let {
+                                adapter = AlbumAdapter(
+                                    AlbumAdapter.AlbumOnClick {
+
+                                    },
+                                    it.albums.album,
+                                    requireContext()
+                                )
+                                binding.albumList.adapter = adapter
+                            }
+                        }
+                        Status.ERROR -> {
+                            CustomProgress.instance?.dismiss()
+                            requireContext().toastMsg(response.message.toString())
                         }
                     }
-                    Status.ERROR -> {
-                        CustomProgress.instance?.dismiss()
-                        requireContext().toastMsg(response.message.toString())
-                    }
-                }
 
-            }
-        })
+                }
+            })
+        }else requireContext().toastMsg("Please check internet connection!")
         return binding.root
     }
 

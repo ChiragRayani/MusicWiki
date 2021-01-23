@@ -14,6 +14,7 @@ import com.example.musicwiki.adapter.ArtistAdapter
 import com.example.musicwiki.databinding.FragmentArtistBinding
 import com.example.musicwiki.util.CustomProgress
 import com.example.musicwiki.util.Status
+import com.example.musicwiki.util.isInternetOn
 import com.example.musicwiki.util.toastMsg
 import com.example.musicwiki.viewmodel.GenreViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,33 +32,35 @@ class FragmentArtist : Fragment() {
     ): View? {
         binding = FragmentArtistBinding.inflate(inflater,container,false)
 
-        viewModel.getArtistList(artistArgs.tag).observe(viewLifecycleOwner, Observer {
-            it?.let { response ->
-                when (response.status) {
-                    Status.LOADING -> {
-                        CustomProgress.instance?.show(requireActivity())
-                    }
-                    Status.SUCCESS -> {
-                        CustomProgress.instance?.dismiss()
-                        response.data?.let {
-                            adapter = ArtistAdapter(
-                                ArtistAdapter.ArtistOnClick {
+        if(requireContext().isInternetOn()) {
+            viewModel.getArtistList(artistArgs.tag).observe(viewLifecycleOwner, Observer {
+                it?.let { response ->
+                    when (response.status) {
+                        Status.LOADING -> {
+                            CustomProgress.instance?.show(requireActivity())
+                        }
+                        Status.SUCCESS -> {
+                            CustomProgress.instance?.dismiss()
+                            response.data?.let {
+                                adapter = ArtistAdapter(
+                                    ArtistAdapter.ArtistOnClick {
 
-                                },
-                                it.topartists.artist,
-                                requireContext()
-                            )
-                            binding.artistList.adapter = adapter
+                                    },
+                                    it.topartists.artist,
+                                    requireContext()
+                                )
+                                binding.artistList.adapter = adapter
+                            }
+                        }
+                        Status.ERROR -> {
+                            CustomProgress.instance?.dismiss()
+                            requireContext().toastMsg(response.message.toString())
                         }
                     }
-                    Status.ERROR -> {
-                        CustomProgress.instance?.dismiss()
-                        requireContext().toastMsg(response.message.toString())
-                    }
-                }
 
-            }
-        })
+                }
+            })
+        }else requireContext().toastMsg("Please check internet connection!")
 
         return binding.root
     }

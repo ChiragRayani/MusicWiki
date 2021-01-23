@@ -14,6 +14,7 @@ import com.example.musicwiki.adapter.TrackAdapter
 import com.example.musicwiki.databinding.FragmentTrackBinding
 import com.example.musicwiki.util.CustomProgress
 import com.example.musicwiki.util.Status
+import com.example.musicwiki.util.isInternetOn
 import com.example.musicwiki.util.toastMsg
 import com.example.musicwiki.viewmodel.GenreViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,33 +33,35 @@ class FragmentTrack : Fragment() {
     ): View? {
         binding = FragmentTrackBinding.inflate(inflater, container, false)
 
-        viewModel.getTrackList(trackArgs.tag).observe(viewLifecycleOwner, Observer {
-            it?.let { response ->
-                when (response.status) {
-                    Status.LOADING -> {
-                        CustomProgress.instance?.show(requireActivity())
-                    }
-                    Status.SUCCESS -> {
-                        CustomProgress.instance?.dismiss()
-                        response.data?.let {
-                            adapter = TrackAdapter(
-                                TrackAdapter.TrackOnClick {
+        if (requireContext().isInternetOn()) {
+            viewModel.getTrackList(trackArgs.tag).observe(viewLifecycleOwner, Observer {
+                it?.let { response ->
+                    when (response.status) {
+                        Status.LOADING -> {
+                            CustomProgress.instance?.show(requireActivity())
+                        }
+                        Status.SUCCESS -> {
+                            CustomProgress.instance?.dismiss()
+                            response.data?.let {
+                                adapter = TrackAdapter(
+                                    TrackAdapter.TrackOnClick {
 
-                                },
-                                it.tracks.track,
-                                requireContext()
-                            )
-                            binding.trackList.adapter = adapter
+                                    },
+                                    it.tracks.track,
+                                    requireContext()
+                                )
+                                binding.trackList.adapter = adapter
+                            }
+                        }
+                        Status.ERROR -> {
+                            CustomProgress.instance?.dismiss()
+                            requireContext().toastMsg(response.message.toString())
                         }
                     }
-                    Status.ERROR -> {
-                        CustomProgress.instance?.dismiss()
-                        requireContext().toastMsg(response.message.toString())
-                    }
-                }
 
-            }
-        })
+                }
+            })
+        } else requireContext().toastMsg("Please check internet connection")
 
         return binding.root
     }

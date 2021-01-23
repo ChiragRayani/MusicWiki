@@ -11,6 +11,7 @@ import com.example.musicwiki.adapter.GenreAdapter
 import com.example.musicwiki.databinding.ActivityMainBinding
 import com.example.musicwiki.util.CustomProgress
 import com.example.musicwiki.util.Status
+import com.example.musicwiki.util.isInternetOn
 import com.example.musicwiki.util.toastMsg
 import com.example.musicwiki.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,31 +29,33 @@ class MainActivity : AppCompatActivity() {
             R.layout.activity_main
         )
 
-        viewModel.getTags().observe(this, Observer {
-            it?.let { response ->
-                when (response.status) {
-                    Status.LOADING -> {
-                        CustomProgress.instance?.show(this@MainActivity)
-                    }
-                    Status.SUCCESS -> {
-                        CustomProgress.instance?.dismiss()
-                        response.data?.let { model ->
-                            adapter = GenreAdapter(GenreAdapter.GenreOnClick {
-                                val intent =
-                                    Intent(this@MainActivity, GenreDetailsActivity::class.java)
-                                intent.putExtra("tag", it.name)
-                                startActivity(intent)
-                            }, model.tags.tag, this@MainActivity)
-                            binding.genreGridview.adapter = adapter
+        if(isInternetOn()) {
+            viewModel.getTags().observe(this, Observer {
+                it?.let { response ->
+                    when (response.status) {
+                        Status.LOADING -> {
+                            CustomProgress.instance?.show(this@MainActivity)
+                        }
+                        Status.SUCCESS -> {
+                            CustomProgress.instance?.dismiss()
+                            response.data?.let { model ->
+                                adapter = GenreAdapter(GenreAdapter.GenreOnClick {
+                                    val intent =
+                                        Intent(this@MainActivity, GenreDetailsActivity::class.java)
+                                    intent.putExtra("tag", it.name)
+                                    startActivity(intent)
+                                }, model.tags.tag, this@MainActivity)
+                                binding.genreGridview.adapter = adapter
+                            }
+                        }
+                        Status.ERROR -> {
+                            CustomProgress.instance?.dismiss()
+                            toastMsg(response.message.toString())
                         }
                     }
-                    Status.ERROR -> {
-                        CustomProgress.instance?.dismiss()
-                        toastMsg(response.message.toString())
-                    }
                 }
-            }
-        })
+            })
+        }else toastMsg("Please check internet connection")
 
     }
 }
