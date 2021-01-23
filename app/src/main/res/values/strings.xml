@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MusicWiki</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+
+    <string name="api_key">bc580da4e27d3a5cc14b7db575faff25</string>
+</resources>
