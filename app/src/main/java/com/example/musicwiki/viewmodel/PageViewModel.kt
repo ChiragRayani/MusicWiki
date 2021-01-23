@@ -1,4 +1,4 @@
-package com.example.musicwiki.ui.main
+package com.example.musicwiki.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

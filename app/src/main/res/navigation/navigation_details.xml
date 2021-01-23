@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_details"
+    app:startDestination="@id/fragment_album">
+
+
+    <fragment
+        android:id="@+id/fragment_album"
+        android:name="com.example.musicwiki.ui.FragmentAlbum"
+        android:label="fragment_album"
+        tools:layout="@layout/fragment_album" >
+        <argument
+            android:name="tag"
+            app:argType="string"
+            android:defaultValue="tag" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_artist"
+        android:name="com.example.musicwiki.ui.FragmentArtist"
+        android:label="fragment_artist"
+        tools:layout="@layout/fragment_artist" >
+        <argument
+            android:name="tag"
+            app:argType="string"
+            android:defaultValue="tag" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_track"
+        android:name="com.example.musicwiki.ui.FragmentTrack"
+        android:label="fragment_track"
+        tools:layout="@layout/fragment_track" >
+        <argument
+            android:name="tag"
+            app:argType="string"
+            android:defaultValue="tag" />
+    </fragment>
+</navigation>

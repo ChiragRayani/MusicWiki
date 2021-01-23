@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @InstallIn(ApplicationComponent::class)
 object RetrofitNetworkModule {
 
-    private val BASE_URL = "http://ws.audioscrobbler.com/2.0//"
+    private val BASE_URL = "http://ws.audioscrobbler.com/"
 
     @Provides
     @Singleton
